@@ -1,0 +1,63 @@
+﻿Mods: 
+{
+	CombatUtil: 
+	{
+		Common: 
+		{
+			And: "and"
+			Yes: "[c/008000:yes]"
+			No: "[c/FF0000:no]"
+		}
+		InfoDisplayName: 
+		{
+			DPHDisplay: "Damage Per Hit"
+			TDPSDisplay: "Total Dot Per Second"
+		}
+		InfoDisplay: 
+		{
+			DPH: "{0} dph, {1} hits in {2}s"
+			TDPS: "{0} tdps in {1}s"
+		}
+		Config: 
+		{
+			Label: "Combat Utilities"
+			Header: "Mod Configs"
+			DPH: 
+			{
+				Label: "DPH info display"
+				Tooltip: "Enable damage per hit info display"
+			}
+			DPHTime: 
+			{
+				Label: "DPH sampling time (seconds)"
+				Tooltip: "The time which dph will be calculated based on it"
+			}
+			TDPS: 
+			{
+				Label: "TDPS info display"
+				Tooltip: "Enable total dot per second info display"
+			}
+			TDPSTime: 
+			{
+				Label: "TDPS sampling time (seconds)"
+				Tooltip: "The time which TDPS will be calculated based on it"
+			}
+		}
+		FightDisplay: 
+		{
+			Summary: "Fight Summary: "
+			FightWith: "A fight with {0}"
+			Time: "Fight time: [c/FFFF00:{0}] seconds, fight speed: [c/FFFF00:{1}%], avg fps: [c/FFFF00:{2}]"
+			Technics: "Had immunity frames: {0}, used mount: {1}"
+			ArenaSize: "Arena size: [c/FFFF00:{0}] x [c/FFFF00:{1}]"
+			Damage: "Dealt [c/FFFF00:{0}] attack damage with [c/FFFF00:{1}] hits, dps: [c/FFFF00:{2}]"
+			HPLoss: "Lost [c/FFFF00:{0}] life with [c/FFFF00:{1}] hits taken{2}"
+			BossInfo: "[c/FF0000:{0}] lived for [c/FFFF00:{1}] seconds and left with [c/FFFF00:{2}] ([c/FFFF00:{3}%]) life"
+
+			Nothit: "no hit taken"
+			Nodamage: "no damage taken"
+			NohitRemark: "Nohit!"
+			NodamageRemark: "Nodamage!"
+		}
+	}
+}
