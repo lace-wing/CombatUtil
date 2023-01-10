@@ -51,7 +51,7 @@
 			Technics: "Had immunity frames: {0}, used mount: {1}"
 			ArenaSize: "Arena size: [c/FFFF00:{0}] x [c/FFFF00:{1}]"
 			Damage: "Dealt [c/FFFF00:{0}] attack damage with [c/FFFF00:{1}] hits, dps: [c/FFFF00:{2}]"
-			HPLoss: "Lost [c/FFFF00:{0}] life with [c/FFFF00:{1}] hits taken{2}"
+			HPLoss: "Lost [c/FFFF00:{0}] life with [c/FFFF00:{1}] hits taken"
 			BossInfo: "[c/FF0000:{0}] lived for [c/FFFF00:{1}] seconds and left with [c/FFFF00:{2}] ([c/FFFF00:{3}%]) life"
 
 			Nothit: "no hit taken"

@@ -86,6 +86,11 @@ namespace CombatUtil.Common
             if (player.TryGetModPlayer(out CombatPlayer cp))
             {
                 HPLoss = cp.HPLoss;
+                if (cp.RefreshHPLossInFight)
+                {
+                    cp.HPLoss = 0;
+                    cp.RefreshHPLossInFight = false;
+                }
             }
         }
     }
@@ -108,7 +113,7 @@ namespace CombatUtil.Common
         /// Call this when the boss is active
         /// </summary>
         /// <param name="boss"></param>
-        public void UpdateLive(NPC boss)
+        public void UpdateActive(NPC boss)
         {
             if (boss.active)
             {
@@ -127,21 +132,18 @@ namespace CombatUtil.Common
         public Dictionary<int, PlayerStats> PlayerInfo;
         public Dictionary<int, BossStats> BossInfo;
         public int Time;
-        public int Damage;
 
         public FightInfo()
         {
             PlayerInfo = new Dictionary<int, PlayerStats>();
             BossInfo = new Dictionary<int, BossStats>();
             Time = 0;
-            Damage = 0;
         }
         public void Reset()
         {
             PlayerInfo.Clear();
             BossInfo.Clear();
             Time = 0;
-            Damage = 0;
         }
         public void ResizeArena(Player player)
         {
@@ -192,100 +194,40 @@ namespace CombatUtil.Common
                 return null;
             }
         }
-        public void Update(Player player)
+        public void UpdatePlayer(Player player)
         {
-            Time = Math.Max(++Time, 0);
-            PlayerStats ps = GetPlayerInfo(player);
-            ps.TotalFPS = Math.Max(ps.TotalFPS + Main.fpsCount, 0);
-            if (player.position.X < ps.TopLeft.X)
+            if (!PlayerInfo.TryAdd(player.whoAmI, new PlayerStats()))
             {
-                ps.TopLeft.X = player.position.X;
-            }
-            if (player.position.Y < ps.TopLeft.Y)
-            {
-                ps.TopLeft.Y = player.position.Y;
-            }
-            if (player.BottomRight.X > ps.BottomRight.X)
-            {
-                ps.BottomRight.X = player.BottomRight.X;
-            }
-            if (player.BottomRight.Y > ps.BottomRight.Y)
-            {
-                ps.BottomRight.Y = player.BottomRight.Y;
-            }
-            if (player.mount.Active)
-            {
-                ps.Mounted = true;
-            }
-            if (player.immune && player.immuneTime > 0)
-            {
-                ps.Immuned = true;
-            }
-            if (player.TryGetModPlayer(out CombatPlayer cp))
-            {
-                if (cp.RefreshHPLossInFight)
-                {
-                    cp.HPLoss = 0;
-                    cp.RefreshHPLossInFight = false;
-                }
+                GetPlayerInfo(player).Update(player);
             }
         }
-        public void Update(NPC boss)
+        public void UpdateBoss(NPC boss)
         {
-            GetBossInfo(boss).HPRemain = boss.life;
-            if (boss.TryGetGlobalNPC(out CombatNPC cn))
+            if (!BossInfo.TryAdd(boss.whoAmI, new BossStats()))
             {
-                GetBossInfo(boss).LifeTime = cn.LifeTime;
+                GetBossInfo(boss).UpdateActive(boss);
             }
         }
         public void DisplayInfo(Player player)
         {
-            // Fight time
-            double time = Time == 0 ? 0 : Math.Round(Time / 60f, 2);
-            int avgFPS = GetPlayerInfo(player).TotalFPS == 0 ? 0 : (int)(2f * GetPlayerInfo(player).TotalFPS / Time); // I donno why but it's half of the reasonable value so I mult 2f
-            double speedPct = avgFPS == 0 ? 0 : Math.Min(Math.Round(100f * avgFPS / 60, 0), 100);
-            // Technics
-            string immuned = GetPlayerInfo(player).Immuned ? yes : no;
-            string mounted = GetPlayerInfo(player).Mounted ? yes : no;
-            // Arena size
-            int width = (int)Math.Round((GetPlayerInfo(player).BottomRight.X - GetPlayerInfo(player).TopLeft.X) / 16, 0);
-            int height = (int)Math.Round((GetPlayerInfo(player).BottomRight.Y - GetPlayerInfo(player).TopLeft.Y) / 16, 0);
-            double dps = Math.Round(60f * Damage / Time, 1);
-            // HP loss and remarks
-            List<string> remarkList = new List<string>();
-            string hpRemarks = "";
-            if (GetPlayerInfo(player).HitTaken <= 0)
-            {
-                remarkList.Add(Language.GetTextValue(FKey + "Nothit"));
-            }
-            if (GetPlayerInfo(player).HPLoss <= 0)
-            {
-                remarkList.Add(Language.GetTextValue(FKey + "Nodamage"));
-            }
-            if (remarkList.Count > 0)
-            {
-                hpRemarks += "[c/FFC0CB: (";
-                for (int i = 0; i < remarkList.Count; i++)
-                {
-                    if (i > 0)
-                    {
-                        hpRemarks += ", ";
-                    }
-                    hpRemarks += remarkList[i];
-                }
-                hpRemarks += ")]";
-            }
+            // Get fight time
+            TryGetFightTime(player, out double time, out int avgFPS, out double speed);
+            // Get technics
+            GetTechicJudgements(player, out string immuned, out string mounted);
+            // Get arena size
+            Vector2 size = GetArenaSize(player);
 
             Utils.PrintText(FKey + "Summary", color: Color.Yellow);
-            Utils.PrintText(FKey + "FightWith", new object[] { BossNames() });
-            Utils.PrintText(FKey + "Time", new object[] { time, speedPct, avgFPS });
+            Utils.PrintText(FKey + "FightWith", new object[] { GetBossNames() });
+            Main.NewText(GetRemarks(player));
+            Utils.PrintText(FKey + "Time", new object[] { time, speed, avgFPS });
             Utils.PrintText(FKey + "Technics", new object[] { immuned, mounted });
-            Utils.PrintText(FKey + "ArenaSize", new object[] { width, height });
-            Utils.PrintText(FKey + "Damage", new object[] { Damage, GetPlayerInfo(player).HitDealt, dps });
-            Utils.PrintText(FKey + "HPLoss", new object[] { GetPlayerInfo(player).HPLoss, GetPlayerInfo(player).HitTaken, hpRemarks });
-            Main.NewText(BossStatList());
+            Utils.PrintText(FKey + "ArenaSize", new object[] { size.X, size.Y });
+            Utils.PrintText(FKey + "Damage", new object[] { GetPlayerInfo(player).DamageDealt, GetPlayerInfo(player).HitDealt, GetDPS(player) });
+            Utils.PrintText(FKey + "HPLoss", new object[] { GetPlayerInfo(player).HPLoss, GetPlayerInfo(player).HitTaken });
+            Main.NewText(GetBossStats());
         }
-        public string BossNames()
+        public string GetBossNames()
         {
             string names, last = null;
             string[] rest = new string[] { };
@@ -307,7 +249,7 @@ namespace CombatUtil.Common
             }
             return names;
         }
-        public string BossStatList()
+        public string GetBossStats()
         {
             string stats;
             string[] info = new string[] { };
@@ -321,6 +263,82 @@ namespace CombatUtil.Common
             }
             stats = string.Join("\n", info);
             return stats;
+        }
+        public bool TryGetFightTime(Player player, out double time, out int avgFPS, out double speed)
+        {
+            if (Time <= 0)
+            {
+                time = 0;
+                avgFPS = 0;
+                speed = 0;
+                return false;
+            }
+            else
+            {
+                time = Math.Round(Time / 60f, 2);
+                avgFPS = GetPlayerInfo(player).TotalFPS == 0 ? 0 : (int)(2f * GetPlayerInfo(player).TotalFPS / Time); // I donno why but it's half of the reasonable value so I mult 2f
+                speed = avgFPS == 0 ? 0 : Math.Min(Math.Round(100f * avgFPS / 60, 0), 100);
+                return true;
+            }
+        }
+        public void GetTechicJudgements(Player player, out string immuned, out string mounted)
+        {
+            immuned = GetPlayerInfo(player).Immuned ? yes : no;
+            mounted = GetPlayerInfo(player).Mounted ? yes : no;
+        }
+        public Vector2 GetArenaSize(Player player)
+        {
+            int width = (int)Math.Round((GetPlayerInfo(player).BottomRight.X - GetPlayerInfo(player).TopLeft.X) / 16, 0);
+            int height = (int)Math.Round((GetPlayerInfo(player).BottomRight.Y - GetPlayerInfo(player).TopLeft.Y) / 16, 0);
+            return new Vector2(width, height);
+        }
+        public double GetDPS(Player player)
+        {
+            if (Time <= 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return Math.Round(60f * GetPlayerInfo(player).DamageDealt / Time, 1);
+            }
+        }
+        public double GetDPH(Player player)
+        {
+            if (GetPlayerInfo(player).HitDealt <= 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return Math.Round(60f * GetPlayerInfo(player).DamageDealt / GetPlayerInfo(player).HitDealt, 1);
+            }
+        }
+        public string GetRemarks(Player player, bool bracketed = true, bool pink = true)
+        {
+            string[] remarkList = new string[] { };
+            string remarks = "";
+            if (GetPlayerInfo(player).HitTaken <= 0)
+            {
+                remarkList.Append(Language.GetTextValue(FKey + "Nothit"));
+            }
+            if (GetPlayerInfo(player).HPLoss <= 0)
+            {
+                remarkList.Append(Language.GetTextValue(FKey + "Nodamage"));
+            }
+            if (remarkList.Length > 0)
+            {
+                remarks = string.Join(", ", remarkList);
+                if (bracketed)
+                {
+                    remarks = string.Join("", new object[] { " (", remarks, ") " });
+                }
+                if (pink)
+                {
+                    remarks = string.Join("", new object[] { "[c/FFC0CB:", remarks, "]" });
+                }
+            }
+            return remarks;
         }
         public void PopupRemarks(Player player)
         {
@@ -349,7 +367,6 @@ namespace CombatUtil.Common
                 if (cti < Main.maxCombatText)
                 {
                     Main.combatText[cti].lifeTime = 360;
-                    Main.combatText[cti].scale = 6;
                 }
             }
         }

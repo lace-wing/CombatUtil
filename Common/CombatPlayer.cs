@@ -62,7 +62,7 @@ namespace CombatUtil.Common
         {
             if (InBossFight)
             {
-                BossFight.Update(Player);
+                BossFight.UpdatePlayer(Player);
             }
             else
             {
@@ -88,7 +88,7 @@ namespace CombatUtil.Common
                     DamageSample[0] += dmgDisplayed;
                     if (InBossFight)
                     {
-                        BossFight.Damage += dmgDisplayed;
+                        BossFight.GetPlayerInfo(Player).DamageDealt += dmgDisplayed;
                     }
                 }
             }
@@ -119,7 +119,7 @@ namespace CombatUtil.Common
                     DamageSample[0] += dmgDisplayed;
                     if (InBossFight)
                     {
-                        BossFight.Damage += dmgDisplayed;
+                        BossFight.GetPlayerInfo(Player).DamageDealt += dmgDisplayed;
                     }
                 }
             }
@@ -195,7 +195,7 @@ namespace CombatUtil.Common
             InBossFight = IsInBossFight();
             if (InBossFight)
             {
-                BossFight.Update(Player);
+                BossFight.UpdatePlayer(Player);
             }
             else
             {
