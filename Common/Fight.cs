@@ -132,6 +132,7 @@ namespace CombatUtil.Common
         public Dictionary<int, PlayerStats> PlayerInfo;
         public Dictionary<int, BossStats> BossInfo;
         public int Time;
+        public bool Active;
 
         public FightInfo()
         {
@@ -144,6 +145,18 @@ namespace CombatUtil.Common
             PlayerInfo.Clear();
             BossInfo.Clear();
             Time = 0;
+            Active = false;
+        }
+        public void Update()
+        {
+            if (Active)
+            {
+                Time = Math.Max(++Time, 0);
+            }
+            else
+            {
+                Reset();
+            }
         }
         public void ResizeArena(Player player)
         {

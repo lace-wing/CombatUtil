@@ -14,34 +14,17 @@ namespace CombatUtil.Common
 
         public int LifeTime = 0;
 
-        public static NPC EoWHead = new NPC();
+        public static int EoWHead = -1;
 
-        public override void Load()
-        {
-            EoWHead.SetDefaults(NPCID.EaterofWorldsHead);
-        }
         public override void ResetEffects(NPC npc)
         {
             LifeTime = Math.Max(++LifeTime, 0);
         }
         public override void PostAI(NPC npc)
         {
-            if (npc.active)
+            if (npc.type != NPCID.MartianSaucerCore && npc.boss)
             {
-                if (npc.type != NPCID.MartianSaucerCore && npc.boss)
-                {
-                    for (int i = 0; i < Main.player.Length; i++)
-                    {
-                        Player player = Main.player[i];
-                        if (player != null && player.TryGetModPlayer(out CombatPlayer cp))
-                        {
-                            if (!cp.BossFight.BossInfo.TryAdd(npc, new BossStats()))
-                            {
-                                cp.BossFight.SetBossInfo(npc, LifeTime, npc.life);
-                            }
-                        }
-                    }
-                }
+                CombatSystem.BossFight.UpdateBoss(npc);
             }
 
             if (npc.lifeRegen < 0)
@@ -58,23 +41,6 @@ namespace CombatUtil.Common
         }
         public override void OnKill(NPC npc)
         {
-            if (Utils.CountAsBoss(npc))
-            {
-                for (int i = 0; i < Main.player.Length; i++)
-                {
-                    Player player = Main.player[i];
-                    if (player != null && player.TryGetModPlayer(out CombatPlayer cp))
-                    {
-                        if (!cp.BossFight.BossInfo.TryAdd(npc, new BossStats()))
-                        {
-                            if (cp.BossFight.BossInfo.TryGetValue(npc, out BossStats status))
-                            {
-                                status.HPRemain = 0;
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

@@ -13,20 +13,12 @@ namespace CombatUtil.Common
         /// </summary>
         public static FightInfo BossFight = new FightInfo();
 
-        public override void PostUpdateNPCs()
-        {
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (npc.active && npc.boss)
-                {
-                    BossFight.BossInfo
-                }
-            }
-        }
         public override void PostUpdateEverything()
         {
-            base.PostUpdateEverything();
+            BossFight.Update();
+        }
+        public override void PostUpdateNPCs()
+        {
         }
     }
 }
