@@ -8,7 +8,7 @@ using Terraria.ID;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 
-namespace CombatUtil.Common
+namespace CombatUtil.Common.FightSystem
 {
     public class PlayerStats
     {
@@ -99,7 +99,7 @@ namespace CombatUtil.Common
         public int LifeTime;
         public int HPRemain;
 
-        public BossStats() 
+        public BossStats()
         {
             LifeTime = 0;
             HPRemain = 0;
