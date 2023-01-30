@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
@@ -171,7 +172,12 @@ namespace CombatUtil.Common.FightSystem
         }
         public override void NetSend(BinaryWriter writer)
         {
-            writer.Write();
+            writer.Write(Utils.ToJSON(BFightRecord));
+        }
+        public override void NetReceive(BinaryReader reader)
+        {
+            string bf = reader.ReadString();
+            BFightRecord = Utils.FromJSON<Dictionary<FightRecordHead, FightRecordBody>>(bf);
         }
     }
 }

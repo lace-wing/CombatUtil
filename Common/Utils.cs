@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria.Localization;
 using Terraria.ID;
+using System.Text.Json;
 
 namespace CombatUtil.Common
 {
@@ -73,6 +74,20 @@ namespace CombatUtil.Common
         public static bool CountAsBoss(NPC npc, bool fuckEoW = false)
         {
             return npc.type != NPCID.MartianSaucerCore && (npc.boss || (!fuckEoW && npc.type == NPCID.EaterofWorldsHead));
+        }
+        public static string ToJSON<T>(T obj)
+        {
+            var option = new JsonSerializerOptions();
+            option.IncludeFields = true;
+            option.IgnoreReadOnlyFields = true;
+            option.IgnoreReadOnlyProperties = true;
+            var result = JsonSerializer.Serialize(obj, option);
+            return result;
+        }
+        public static T FromJSON<T>(string json)
+        {
+            var result = JsonSerializer.Deserialize<T>(json);
+            return result;
         }
     }
 }
