@@ -24,7 +24,7 @@ namespace CombatUtil.Common
         {
             if (npc.type != NPCID.MartianSaucerCore && npc.boss)
             {
-                CombatSystem.BossFight.UpdateBoss(npc);
+                CombatSystem.BossFight.UpdateEnemy(npc);
             }
 
             if (npc.lifeRegen < 0)

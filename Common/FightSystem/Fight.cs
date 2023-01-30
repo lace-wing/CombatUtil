@@ -94,12 +94,12 @@ namespace CombatUtil.Common.FightSystem
             }
         }
     }
-    public class BossStat
+    public class EnemyStat
     {
         public int LifeTime;
         public int HPRemain;
 
-        public BossStat()
+        public EnemyStat()
         {
             LifeTime = 0;
             HPRemain = 0;
@@ -112,13 +112,13 @@ namespace CombatUtil.Common.FightSystem
         /// <summary>
         /// Call this when the boss is active
         /// </summary>
-        /// <param name="boss"></param>
-        public void UpdateActive(NPC boss)
+        /// <param name="npc"></param>
+        public void UpdateActive(NPC npc)
         {
-            if (boss.active)
+            if (npc.active)
             {
-                LifeTime = boss.GetGlobalNPC<CombatNPC>().LifeTime;
-                HPRemain = boss.life;
+                LifeTime = npc.GetGlobalNPC<CombatNPC>().LifeTime;
+                HPRemain = npc.life;
             }
         }
     }
@@ -130,20 +130,20 @@ namespace CombatUtil.Common.FightSystem
         private string no = Language.GetTextValue(CKey + "No");
 
         public Dictionary<int, PlayerStat> PlayerStats;
-        public Dictionary<int, BossStat> BossStats;
+        public Dictionary<int, EnemyStat> EnemyStats;
         public int Time;
         public bool Active;
 
         public ActiveFight()
         {
             PlayerStats = new Dictionary<int, PlayerStat>();
-            BossStats = new Dictionary<int, BossStat>();
+            EnemyStats = new Dictionary<int, EnemyStat>();
             Time = 0;
         }
         public void Reset()
         {
             PlayerStats.Clear();
-            BossStats.Clear();
+            EnemyStats.Clear();
             Time = 0;
             Active = false;
         }
@@ -185,9 +185,9 @@ namespace CombatUtil.Common.FightSystem
                 return null;
             }
         }
-        public NPC GetBoss(int index)
+        public NPC GetEnemy(int index)
         {
-            if (BossStats.ContainsKey(index))
+            if (EnemyStats.ContainsKey(index))
             {
                 return Main.npc[index];
             }
@@ -196,9 +196,9 @@ namespace CombatUtil.Common.FightSystem
                 return null;
             }
         }
-        public BossStat GetBossStat(NPC boss)
+        public EnemyStat GetEnemyStat(NPC npc)
         {
-            if (BossStats.TryGetValue(boss.whoAmI, out BossStat bs))
+            if (EnemyStats.TryGetValue(npc.whoAmI, out EnemyStat bs))
             {
                 return bs;
             }
@@ -214,11 +214,11 @@ namespace CombatUtil.Common.FightSystem
                 GetPlayerStat(player).Update(player);
             }
         }
-        public void UpdateBoss(NPC boss)
+        public void UpdateEnemy(NPC npc)
         {
-            if (!BossStats.TryAdd(boss.whoAmI, new BossStat()))
+            if (!EnemyStats.TryAdd(npc.whoAmI, new EnemyStat()))
             {
-                GetBossStat(boss).UpdateActive(boss);
+                GetEnemyStat(npc).UpdateActive(npc);
             }
         }
         public void DisplayInfo(Player player)
@@ -231,28 +231,28 @@ namespace CombatUtil.Common.FightSystem
             Vector2 size = GetArenaSize(player);
 
             Utils.PrintText(FKey + "Summary", color: Color.Yellow);
-            Utils.PrintText(FKey + "FightWith", new object[] { GetBossNames() });
+            Utils.PrintText(FKey + "FightWith", new object[] { GetEnemyNames() });
             Main.NewText(GetRemarks(player));
             Utils.PrintText(FKey + "Time", new object[] { time, speed, avgFPS });
             Utils.PrintText(FKey + "Technics", new object[] { immuned, mounted });
             Utils.PrintText(FKey + "ArenaSize", new object[] { size.X, size.Y });
             Utils.PrintText(FKey + "Damage", new object[] { GetPlayerStat(player).DamageDealt, GetPlayerStat(player).HitDealt, GetDPS(player) });
             Utils.PrintText(FKey + "HPLoss", new object[] { GetPlayerStat(player).HPLoss, GetPlayerStat(player).HitTaken });
-            Main.NewText(GetBossStats());
+            Main.NewText(GetenemyStats());
         }
-        public string GetBossNames()
+        public string GetEnemyNames()
         {
             string names, last = null;
             string[] rest = new string[] { };
-            for (int i = 0; i < BossStats.Keys.Count; i++)
+            for (int i = 0; i < EnemyStats.Keys.Count; i++)
             {
-                if (i > 0 && i == BossStats.Keys.Count - 1)
+                if (i > 0 && i == EnemyStats.Keys.Count - 1)
                 {
-                    last = $"[c/FF0000:{GetBoss(i).GivenOrTypeName}]";
+                    last = $"[c/FF0000:{GetEnemy(i).GivenOrTypeName}]";
                 }
                 else
                 {
-                    rest.Append($"[c/FF0000:{GetBoss(i).GivenOrTypeName}]");
+                    rest.Append($"[c/FF0000:{GetEnemy(i).GivenOrTypeName}]");
                 }
             }
             names = string.Join(", ", rest);
@@ -262,17 +262,17 @@ namespace CombatUtil.Common.FightSystem
             }
             return names;
         }
-        public string GetBossStats()
+        public string GetenemyStats()
         {
             string stats;
             string[] info = new string[] { };
-            for (int i = 0; i < BossStats.Keys.Count; i++)
+            for (int i = 0; i < EnemyStats.Keys.Count; i++)
             {
-                BossStat bs = BossStats[i];
+                EnemyStat bs = EnemyStats[i];
                 double lifeTime = bs.LifeTime == 0 ? 0 : Math.Round(bs.LifeTime / 60f, 2);
                 int remain = Math.Max(bs.HPRemain, 0);
-                double remainPct = remain == 0 ? 0 : Math.Round(100f * remain / GetBoss(i).lifeMax, 1);
-                info.Append(Language.GetTextValue(FKey + "BossInfo", GetBoss(i).GivenOrTypeName, lifeTime, remain, remainPct));
+                double remainPct = remain == 0 ? 0 : Math.Round(100f * remain / GetEnemy(i).lifeMax, 1);
+                info.Append(Language.GetTextValue(FKey + "EnemyInfo", GetEnemy(i).GivenOrTypeName, lifeTime, remain, remainPct));
             }
             stats = string.Join("\n", info);
             return stats;

@@ -101,11 +101,11 @@ namespace CombatUtil.Common
                 BossFight.GetPlayerStat(Player).HitDealt += 1;
                 if (Utils.CountAsBoss(target))
                 {
-                    if (!BossFight.BossStats.TryAdd(target.whoAmI, new BossStat()))
+                    if (!BossFight.EnemyStats.TryAdd(target.whoAmI, new EnemyStat()))
                     {
                         CombatNPC cn = target.GetGlobalNPC<CombatNPC>();
-                        BossFight.GetBossStat(target).LifeTime = cn.LifeTime;
-                        BossFight.GetBossStat(target).HPRemain = target.life;
+                        BossFight.GetEnemyStat(target).LifeTime = cn.LifeTime;
+                        BossFight.GetEnemyStat(target).HPRemain = target.life;
                     }
                 }
             }
@@ -132,11 +132,11 @@ namespace CombatUtil.Common
                 BossFight.GetPlayerStat(Player).HitDealt += 1;
                 if (Utils.CountAsBoss(target))
                 {
-                    if (!BossFight.BossStats.TryAdd(target.whoAmI, new BossStat()))
+                    if (!BossFight.EnemyStats.TryAdd(target.whoAmI, new EnemyStat()))
                     {
                         CombatNPC cn = target.GetGlobalNPC<CombatNPC>();
-                        BossFight.GetBossStat(target).LifeTime = cn.LifeTime;
-                        BossFight.GetBossStat(target).HPRemain = target.life;
+                        BossFight.GetEnemyStat(target).LifeTime = cn.LifeTime;
+                        BossFight.GetEnemyStat(target).HPRemain = target.life;
                     }
                 }
             }
