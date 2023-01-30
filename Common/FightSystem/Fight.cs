@@ -10,7 +10,7 @@ using Terraria.Localization;
 
 namespace CombatUtil.Common.FightSystem
 {
-    public class PlayerStats
+    public class PlayerStat
     {
         public int ActiveTime;
         public int TotalFPS;
@@ -25,7 +25,7 @@ namespace CombatUtil.Common.FightSystem
         public Vector2 TopLeft;
         public Vector2 BottomRight;
 
-        public PlayerStats()
+        public PlayerStat()
         {
             ActiveTime = 0;
             TotalFPS = 0;
@@ -94,12 +94,12 @@ namespace CombatUtil.Common.FightSystem
             }
         }
     }
-    public class BossStats
+    public class BossStat
     {
         public int LifeTime;
         public int HPRemain;
 
-        public BossStats()
+        public BossStat()
         {
             LifeTime = 0;
             HPRemain = 0;
@@ -129,21 +129,21 @@ namespace CombatUtil.Common.FightSystem
         private string yes = Language.GetTextValue(CKey + "Yes");
         private string no = Language.GetTextValue(CKey + "No");
 
-        public Dictionary<int, PlayerStats> PlayerInfo;
-        public Dictionary<int, BossStats> BossInfo;
+        public Dictionary<int, PlayerStat> PlayerStats;
+        public Dictionary<int, BossStat> BossStats;
         public int Time;
         public bool Active;
 
         public FightInfo()
         {
-            PlayerInfo = new Dictionary<int, PlayerStats>();
-            BossInfo = new Dictionary<int, BossStats>();
+            PlayerStats = new Dictionary<int, PlayerStat>();
+            BossStats = new Dictionary<int, BossStat>();
             Time = 0;
         }
         public void Reset()
         {
-            PlayerInfo.Clear();
-            BossInfo.Clear();
+            PlayerStats.Clear();
+            BossStats.Clear();
             Time = 0;
             Active = false;
         }
@@ -160,12 +160,12 @@ namespace CombatUtil.Common.FightSystem
         }
         public void ResizeArena(Player player)
         {
-            GetPlayerInfo(player).TopLeft = player.position;
-            GetPlayerInfo(player).BottomRight = player.BottomRight;
+            GetPlayerStat(player).TopLeft = player.position;
+            GetPlayerStat(player).BottomRight = player.BottomRight;
         }
         public Player GetPlayer(int index)
         {
-            if (PlayerInfo.ContainsKey(index))
+            if (PlayerStats.ContainsKey(index))
             {
                 return Main.player[index];
             }
@@ -174,9 +174,9 @@ namespace CombatUtil.Common.FightSystem
                 return null;
             }
         }
-        public PlayerStats GetPlayerInfo(Player player)
+        public PlayerStat GetPlayerStat(Player player)
         {
-            if (PlayerInfo.TryGetValue(player.whoAmI, out PlayerStats ps))
+            if (PlayerStats.TryGetValue(player.whoAmI, out PlayerStat ps))
             {
                 return ps;
             }
@@ -187,7 +187,7 @@ namespace CombatUtil.Common.FightSystem
         }
         public NPC GetBoss(int index)
         {
-            if (BossInfo.ContainsKey(index))
+            if (BossStats.ContainsKey(index))
             {
                 return Main.npc[index];
             }
@@ -196,9 +196,9 @@ namespace CombatUtil.Common.FightSystem
                 return null;
             }
         }
-        public BossStats GetBossInfo(NPC boss)
+        public BossStat GetBossStat(NPC boss)
         {
-            if (BossInfo.TryGetValue(boss.whoAmI, out BossStats bs))
+            if (BossStats.TryGetValue(boss.whoAmI, out BossStat bs))
             {
                 return bs;
             }
@@ -209,16 +209,16 @@ namespace CombatUtil.Common.FightSystem
         }
         public void UpdatePlayer(Player player)
         {
-            if (!PlayerInfo.TryAdd(player.whoAmI, new PlayerStats()))
+            if (!PlayerStats.TryAdd(player.whoAmI, new PlayerStat()))
             {
-                GetPlayerInfo(player).Update(player);
+                GetPlayerStat(player).Update(player);
             }
         }
         public void UpdateBoss(NPC boss)
         {
-            if (!BossInfo.TryAdd(boss.whoAmI, new BossStats()))
+            if (!BossStats.TryAdd(boss.whoAmI, new BossStat()))
             {
-                GetBossInfo(boss).UpdateActive(boss);
+                GetBossStat(boss).UpdateActive(boss);
             }
         }
         public void DisplayInfo(Player player)
@@ -236,17 +236,17 @@ namespace CombatUtil.Common.FightSystem
             Utils.PrintText(FKey + "Time", new object[] { time, speed, avgFPS });
             Utils.PrintText(FKey + "Technics", new object[] { immuned, mounted });
             Utils.PrintText(FKey + "ArenaSize", new object[] { size.X, size.Y });
-            Utils.PrintText(FKey + "Damage", new object[] { GetPlayerInfo(player).DamageDealt, GetPlayerInfo(player).HitDealt, GetDPS(player) });
-            Utils.PrintText(FKey + "HPLoss", new object[] { GetPlayerInfo(player).HPLoss, GetPlayerInfo(player).HitTaken });
+            Utils.PrintText(FKey + "Damage", new object[] { GetPlayerStat(player).DamageDealt, GetPlayerStat(player).HitDealt, GetDPS(player) });
+            Utils.PrintText(FKey + "HPLoss", new object[] { GetPlayerStat(player).HPLoss, GetPlayerStat(player).HitTaken });
             Main.NewText(GetBossStats());
         }
         public string GetBossNames()
         {
             string names, last = null;
             string[] rest = new string[] { };
-            for (int i = 0; i < BossInfo.Keys.Count; i++)
+            for (int i = 0; i < BossStats.Keys.Count; i++)
             {
-                if (i > 0 && i == BossInfo.Keys.Count - 1)
+                if (i > 0 && i == BossStats.Keys.Count - 1)
                 {
                     last = $"[c/FF0000:{GetBoss(i).GivenOrTypeName}]";
                 }
@@ -266,9 +266,9 @@ namespace CombatUtil.Common.FightSystem
         {
             string stats;
             string[] info = new string[] { };
-            for (int i = 0; i < BossInfo.Keys.Count; i++)
+            for (int i = 0; i < BossStats.Keys.Count; i++)
             {
-                BossStats bs = BossInfo[i];
+                BossStat bs = BossStats[i];
                 double lifeTime = bs.LifeTime == 0 ? 0 : Math.Round(bs.LifeTime / 60f, 2);
                 int remain = Math.Max(bs.HPRemain, 0);
                 double remainPct = remain == 0 ? 0 : Math.Round(100f * remain / GetBoss(i).lifeMax, 1);
@@ -289,20 +289,20 @@ namespace CombatUtil.Common.FightSystem
             else
             {
                 time = Math.Round(Time / 60f, 2);
-                avgFPS = GetPlayerInfo(player).TotalFPS == 0 ? 0 : (int)(2f * GetPlayerInfo(player).TotalFPS / Time); // I donno why but it's half of the reasonable value so I mult 2f
+                avgFPS = GetPlayerStat(player).TotalFPS == 0 ? 0 : (int)(2f * GetPlayerStat(player).TotalFPS / Time); // I donno why but it's half of the reasonable value so I mult 2f
                 speed = avgFPS == 0 ? 0 : Math.Min(Math.Round(100f * avgFPS / 60, 0), 100);
                 return true;
             }
         }
         public void GetTechicJudgements(Player player, out string immuned, out string mounted)
         {
-            immuned = GetPlayerInfo(player).Immuned ? yes : no;
-            mounted = GetPlayerInfo(player).Mounted ? yes : no;
+            immuned = GetPlayerStat(player).Immuned ? yes : no;
+            mounted = GetPlayerStat(player).Mounted ? yes : no;
         }
         public Vector2 GetArenaSize(Player player)
         {
-            int width = (int)Math.Round((GetPlayerInfo(player).BottomRight.X - GetPlayerInfo(player).TopLeft.X) / 16, 0);
-            int height = (int)Math.Round((GetPlayerInfo(player).BottomRight.Y - GetPlayerInfo(player).TopLeft.Y) / 16, 0);
+            int width = (int)Math.Round((GetPlayerStat(player).BottomRight.X - GetPlayerStat(player).TopLeft.X) / 16, 0);
+            int height = (int)Math.Round((GetPlayerStat(player).BottomRight.Y - GetPlayerStat(player).TopLeft.Y) / 16, 0);
             return new Vector2(width, height);
         }
         public double GetDPS(Player player)
@@ -313,29 +313,29 @@ namespace CombatUtil.Common.FightSystem
             }
             else
             {
-                return Math.Round(60f * GetPlayerInfo(player).DamageDealt / Time, 1);
+                return Math.Round(60f * GetPlayerStat(player).DamageDealt / Time, 1);
             }
         }
         public double GetDPH(Player player)
         {
-            if (GetPlayerInfo(player).HitDealt <= 0)
+            if (GetPlayerStat(player).HitDealt <= 0)
             {
                 return 0;
             }
             else
             {
-                return Math.Round(60f * GetPlayerInfo(player).DamageDealt / GetPlayerInfo(player).HitDealt, 1);
+                return Math.Round(60f * GetPlayerStat(player).DamageDealt / GetPlayerStat(player).HitDealt, 1);
             }
         }
         public string GetRemarks(Player player, bool bracketed = true, bool pink = true)
         {
             string[] remarkList = new string[] { };
             string remarks = "";
-            if (GetPlayerInfo(player).HitTaken <= 0)
+            if (GetPlayerStat(player).HitTaken <= 0)
             {
                 remarkList.Append(Language.GetTextValue(FKey + "Nothit"));
             }
-            if (GetPlayerInfo(player).HPLoss <= 0)
+            if (GetPlayerStat(player).HPLoss <= 0)
             {
                 remarkList.Append(Language.GetTextValue(FKey + "Nodamage"));
             }
@@ -358,11 +358,11 @@ namespace CombatUtil.Common.FightSystem
             // Remarks
             List<string> remarkList = new List<string>();
             string remarks = "";
-            if (GetPlayerInfo(player).HitTaken <= 0)
+            if (GetPlayerStat(player).HitTaken <= 0)
             {
                 remarkList.Add(Language.GetTextValue(FKey + "NohitRemark"));
             }
-            if (GetPlayerInfo(player).HPLoss <= 0)
+            if (GetPlayerStat(player).HPLoss <= 0)
             {
                 remarkList.Add(Language.GetTextValue(FKey + "NodamageRemark"));
             }

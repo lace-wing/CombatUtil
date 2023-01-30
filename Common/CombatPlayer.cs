@@ -70,7 +70,7 @@ namespace CombatUtil.Common
             {
                 if (BossFight.Time > 0)
                 {
-                    BossFight.GetPlayerInfo(Player).HPLoss = HPLoss;
+                    BossFight.GetPlayerStat(Player).HPLoss = HPLoss;
                     BossFight.DisplayInfo(Player);
                     BossFight.PopupRemarks(Player);
                 }
@@ -90,7 +90,7 @@ namespace CombatUtil.Common
                     DamageSample[0] += dmgDisplayed;
                     if (InBossFight)
                     {
-                        BossFight.GetPlayerInfo(Player).DamageDealt += dmgDisplayed;
+                        BossFight.GetPlayerStat(Player).DamageDealt += dmgDisplayed;
                     }
                 }
             }
@@ -98,14 +98,14 @@ namespace CombatUtil.Common
             UpdateTDPS();
             if (InBossFight)
             {
-                BossFight.GetPlayerInfo(Player).HitDealt += 1;
+                BossFight.GetPlayerStat(Player).HitDealt += 1;
                 if (Utils.CountAsBoss(target))
                 {
-                    if (!BossFight.BossInfo.TryAdd(target.whoAmI, new BossStats()))
+                    if (!BossFight.BossStats.TryAdd(target.whoAmI, new BossStat()))
                     {
                         CombatNPC cn = target.GetGlobalNPC<CombatNPC>();
-                        BossFight.GetBossInfo(target).LifeTime = cn.LifeTime;
-                        BossFight.GetBossInfo(target).HPRemain = target.life;
+                        BossFight.GetBossStat(target).LifeTime = cn.LifeTime;
+                        BossFight.GetBossStat(target).HPRemain = target.life;
                     }
                 }
             }
@@ -121,7 +121,7 @@ namespace CombatUtil.Common
                     DamageSample[0] += dmgDisplayed;
                     if (InBossFight)
                     {
-                        BossFight.GetPlayerInfo(Player).DamageDealt += dmgDisplayed;
+                        BossFight.GetPlayerStat(Player).DamageDealt += dmgDisplayed;
                     }
                 }
             }
@@ -129,14 +129,14 @@ namespace CombatUtil.Common
             UpdateTDPS();
             if (InBossFight)
             {
-                BossFight.GetPlayerInfo(Player).HitDealt += 1;
+                BossFight.GetPlayerStat(Player).HitDealt += 1;
                 if (Utils.CountAsBoss(target))
                 {
-                    if (!BossFight.BossInfo.TryAdd(target.whoAmI, new BossStats()))
+                    if (!BossFight.BossStats.TryAdd(target.whoAmI, new BossStat()))
                     {
                         CombatNPC cn = target.GetGlobalNPC<CombatNPC>();
-                        BossFight.GetBossInfo(target).LifeTime = cn.LifeTime;
-                        BossFight.GetBossInfo(target).HPRemain = target.life;
+                        BossFight.GetBossStat(target).LifeTime = cn.LifeTime;
+                        BossFight.GetBossStat(target).HPRemain = target.life;
                     }
                 }
             }
@@ -172,7 +172,7 @@ namespace CombatUtil.Common
         {
             if (InBossFight)
             {
-                BossFight.GetPlayerInfo(Player).HitTaken += 1;
+                BossFight.GetPlayerStat(Player).HitTaken += 1;
             }
             SampleHPAndUpdateLoss();
         }
@@ -203,7 +203,7 @@ namespace CombatUtil.Common
             {
                 if (BossFight.Time > 0)
                 {
-                    BossFight.GetPlayerInfo(Player).HPLoss = HPLoss;
+                    BossFight.GetPlayerStat(Player).HPLoss = HPLoss;
                     BossFight.DisplayInfo(Player);
                     BossFight.PopupRemarks(Player);
                 }
