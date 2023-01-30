@@ -75,7 +75,7 @@ namespace CombatUtil.Common
         {
             return npc.type != NPCID.MartianSaucerCore && (npc.boss || (!fuckEoW && npc.type == NPCID.EaterofWorldsHead));
         }
-        public static string ToJSON<T>(T obj)
+        public static string ToJSON(object obj)
         {
             var option = new JsonSerializerOptions();
             option.IncludeFields = true;

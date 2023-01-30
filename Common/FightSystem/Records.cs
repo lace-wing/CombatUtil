@@ -177,7 +177,7 @@ namespace CombatUtil.Common.FightSystem
         public override void NetReceive(BinaryReader reader)
         {
             string bf = reader.ReadString();
-            BFightRecord = Utils.FromJSON<Dictionary<FightRecordHead, FightRecordBody>>(bf);
+            BFightRecord = Utils.FromJSON<Dictionary<FightRecordHead, FightRecordBody>>(bf); //TODO Test it
         }
     }
 }
