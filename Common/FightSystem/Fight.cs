@@ -122,7 +122,7 @@ namespace CombatUtil.Common.FightSystem
             }
         }
     }
-    public class FightInfo
+    public class ActiveFight
     {
         private const string FKey = "Mods.CombatUtil.FightDisplay.";
         private const string CKey = "Mods.CombatUtil.Common.";
@@ -134,7 +134,7 @@ namespace CombatUtil.Common.FightSystem
         public int Time;
         public bool Active;
 
-        public FightInfo()
+        public ActiveFight()
         {
             PlayerStats = new Dictionary<int, PlayerStat>();
             BossStats = new Dictionary<int, BossStat>();

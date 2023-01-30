@@ -13,7 +13,7 @@ namespace CombatUtil.Common
         /// <summary>
         /// The only active boss fight in the world
         /// </summary>
-        public static FightInfo BossFight = new FightInfo();
+        public static ActiveFight BossFight = new ActiveFight();
 
         public override void PostUpdateEverything()
         {
