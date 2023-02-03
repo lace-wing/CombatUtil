@@ -133,11 +133,11 @@ namespace CombatUtil.Common.FightSystem
         }
         public override void SaveWorldData(TagCompound tag)
         {
-            tag["BFightRecord"] = BFightRecord;
+            tag["BFightRecord"] = Utils.ToJSON(BFightRecord);
         }
         public override void LoadWorldData(TagCompound tag)
         {
-            BFightRecord = tag["BFightRecord"] as Dictionary<FightRecordHead, FightRecordBody>;
+            BFightRecord = Utils.FromJSON<Dictionary<FightRecordHead, FightRecordBody>>(tag["BFightRecord"].ToString());
         }
         public override void NetSend(BinaryWriter writer)
         {

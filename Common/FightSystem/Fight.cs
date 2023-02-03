@@ -10,6 +10,15 @@ using Terraria.Localization;
 
 namespace CombatUtil.Common.FightSystem
 {
+    /*
+     * ActiveFight用于记录当前活跃的战斗
+     * 包含参战者的详细信息
+     * 玩家: 活跃时间, 帧率, 总伤, 命中数, 损血量, 受击数, 死亡数, 是否触发过无敌帧, 是否用过坐骑, 历史位置的左上右下极点
+     * 计划: 主要伤害类型, 伤害模式 (爆发?刮痧?), 战斗风格 (贴脸?风筝?), 是否传送过 (不好弄)
+     * 敌怪: 活跃时间, 当前血量
+     * 它们都存在字典里, 用whoAmI作为键
+     * 计划: 适配分节蠕虫, 用特定的数而不是whoAmI存储
+     */
     public class PlayerStat
     {
         public int ActiveTime;
