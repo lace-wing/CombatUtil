@@ -21,69 +21,38 @@ namespace CombatUtil.Common.FightSystem
          * 使用 Main.ActivePlayerFileData.Name 查询某玩家在某世界的战斗纪录
          * 用Dictionary存储, 每一个 玩家-敌怪 组合都是独特的
          */
-        public HashSet<string> PlayerFileNames;
-        public HashSet<string> EnemyClassNames;
-        public FightRecordHead(string[] players, string[] enemies)
-        {
-            PlayerFileNames = players.ToHashSet();
-            EnemyClassNames = enemies.ToHashSet();
-        }
-
-        public bool Valid => PlayerFileNames.Count > 0 && EnemyClassNames.Count > 0;
-        public bool HasPlayer(string filename) => PlayerFileNames.Contains(filename);
-        public bool HasEnemy(string className) => EnemyClassNames.Contains(className);
         /// <summary>
-        /// Check if the provided array of player and enemy match the FightRecordHead. Leave any of the parameters null to ignore it
+        /// Key: player's filename, value: player's display name
+        /// </summary>
+        public Dictionary<string, string> PlayerNames;
+        public Dictionary<string, int> EnemyInfo;
+
+        public bool Valid => PlayerNames.Count > 0 && EnemyInfo.Count > 0;
+        public bool HasPlayer(string filename) => PlayerNames.Keys.Contains(filename);
+        public bool HasEnemy(string className, int count) => EnemyInfo.TryGetValue(className, out int c) && c == count;
+        /// <summary>
+        /// Checks if the provided HashSet matches the record's player filenames
         /// </summary>
         /// <param name="players"></param>
+        /// <returns></returns>
+        public bool MatchPlayer(HashSet<string> players)
+        {
+            return players == PlayerNames.Keys.ToHashSet();
+        }
+        /// <summary>
+        /// Checks if the provided Dictionary matches the record's enemy info
+        /// </summary>
         /// <param name="enemies"></param>
         /// <returns></returns>
-        public bool MatchPlayer(string[] players)
+        public bool MatchEnemy(Dictionary<string, int> enemies)
         {
-            if (players == null || players.Length <= 0)
-            {
-                return false;
-            }
-            List<string> plist = players.ToList();
-            for (int i = 0; i < PlayerFileNames.Count; i++)
-            {
-                if (!plist.Remove(PlayerFileNames.ElementAt(i)))
-                {
-                    return false;
-                }
-            }
-            if (plist.Count > 0)
-            {
-                return false;
-            }
-            return true;
-        }
-        public bool MatchEnemy(string[] enemies)
-        {
-            if (enemies == null || enemies.Length <= 0)
-            {
-                return false;
-            }
-            List<string> elist = enemies.ToList();
-            for (int i = 0; i < EnemyClassNames.Count; i++)
-            {
-                if (!elist.Remove(EnemyClassNames.ElementAt(i)))
-                {
-                    return false;
-                }
-            }
-            if (elist.Count > 0)
-            {
-                return false;
-            }
-            return true;
+            return enemies == EnemyInfo;
         }
     }
     public struct FightRecordBody
     {
         public FightRemark[][] Remarks;
-        public int[] DeathCounts;
-        public int[] EnemyCounts; 
+        public int[] DeathCounts; 
         public int WinCount;
         public int LossCount;
         public int TimeMax;
@@ -103,15 +72,15 @@ namespace CombatUtil.Common.FightSystem
         /// Get the first occurence of the matching FightRecordHead
         /// </summary>
         /// <param name="playerFilenames"></param>
-        /// <param name="enemyClassNames"></param>
+        /// <param name="enemyInfo"></param>
         /// <returns>Returns a matching FightRecordHead or an empty FightRecordHead if no matching case is found</returns>
-        public static FightRecordHead GetRecordHead(string[] playerFilenames, string[] enemyClassNames)
+        public static FightRecordHead GetRecordHead(HashSet<string> playerFilenames, Dictionary<string, int> enemyInfo)
         {
             FightRecordHead head = new FightRecordHead();
             for (int i = 0; i < BFightRecord.Count; i++)
             {
                 head = BFightRecord.Keys.ToArray()[i];
-                if (head.MatchPlayer(playerFilenames) && head.MatchEnemy(enemyClassNames))
+                if (head.MatchPlayer(playerFilenames) && head.MatchEnemy(enemyInfo))
                 {
                     return head;
                 }
@@ -130,7 +99,7 @@ namespace CombatUtil.Common.FightSystem
         {
             deaths = 0;
             remarks = new FightRemark[0];
-            int i = head.PlayerFileNames.ToList().IndexOf(filename);
+            int i = head.PlayerNames.Keys.ToList().IndexOf(filename);
             if (i == -1)
             {
                 return false;
@@ -146,10 +115,10 @@ namespace CombatUtil.Common.FightSystem
         /// <returns>Returns number of the enemy in the fight record or -1 if the enemy is not in the fight</returns>
         public static int GetEnemyCount(FightRecordHead head, string className)
         {
-            int i = head.EnemyClassNames.ToList().IndexOf(className);
+            int i = head.EnemyInfo.Keys.ToList().IndexOf(className);
             if (i != -1)
             {
-                return BFightRecord.GetValueOrDefault(head).EnemyCounts[i];
+                return head.EnemyInfo.Values.ToArray()[i];
             }
             return -1;
         }
