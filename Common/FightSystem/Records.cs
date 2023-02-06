@@ -133,7 +133,14 @@ namespace CombatUtil.Common.FightSystem
         }
         public override void SaveWorldData(TagCompound tag)
         {
-            tag["BFightRecord"] = Utils.ToJSON(BFightRecord);
+            if (tag.ContainsKey("BFightRecord"))
+            {
+                tag.Add("BFightRecord", BFightRecord);
+            }
+            else
+            {
+                tag["BFightRecord"] = Utils.ToJSON(BFightRecord);
+            }
         }
         public override void LoadWorldData(TagCompound tag)
         {

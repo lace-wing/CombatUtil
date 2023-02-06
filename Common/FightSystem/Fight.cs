@@ -95,11 +95,6 @@ namespace CombatUtil.Common.FightSystem
             if (player.TryGetModPlayer(out CombatPlayer cp))
             {
                 HPLoss = cp.HPLoss;
-                if (cp.RefreshHPLossInFight)
-                {
-                    cp.HPLoss = 0;
-                    cp.RefreshHPLossInFight = false;
-                }
             }
         }
     }
@@ -167,7 +162,7 @@ namespace CombatUtil.Common.FightSystem
                 Reset();
             }
         }
-        public void ResizeArena(Player player)
+        public void ResetArena(Player player)
         {
             GetPlayerStat(player).TopLeft = player.position;
             GetPlayerStat(player).BottomRight = player.BottomRight;

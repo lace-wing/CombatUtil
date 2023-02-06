@@ -14,7 +14,11 @@ namespace CombatUtil.Common
 
         public int LifeTime = 0;
 
-        public static int EoWHead = -1;
+        public struct SegmentedBossInfo
+        {
+            public int[] ids;
+            public string[] classNames;
+        }
 
         public override void ResetEffects(NPC npc)
         {
@@ -24,7 +28,7 @@ namespace CombatUtil.Common
         {
             if (npc.type != NPCID.MartianSaucerCore && npc.boss)
             {
-                CombatSystem.BossFight.UpdateEnemy(npc);
+                BossFightSystem.BossFight.UpdateEnemy(npc);
             }
 
             if (npc.lifeRegen < 0)

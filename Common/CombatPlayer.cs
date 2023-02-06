@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Terraria.DataStructures;
 using Terraria.ID;
 using CombatUtil.Common.FightSystem;
-using static CombatUtil.Common.CombatSystem;
+using static CombatUtil.Common.BossFightSystem;
 using Terraria.IO;
 
 namespace CombatUtil.Common
@@ -23,10 +23,11 @@ namespace CombatUtil.Common
         public int HPLoss = 0;
         
         public bool InBossFight = false;
-        public bool RefreshHPLossInFight = true;
 
         public override void ResetEffects()
         {
+            InBossFight = BossFight.Active;
+
             if (Configs.Refresh)
             {
                 DamageSample = new int[Configs.Instance.DPHTime];
@@ -55,10 +56,14 @@ namespace CombatUtil.Common
                 UpdateDPH();
                 UpdateTDPS();
             }
-
-            SampleHPAndUpdateLoss();
-
-            InBossFight = IsInBossFight();
+            if (InBossFight)
+            {
+                SampleHPAndUpdateLoss();
+            }
+            else
+            {
+                HPLoss = 0;
+            }
         }
         public override void PostUpdate()
         {
@@ -75,8 +80,7 @@ namespace CombatUtil.Common
                     BossFight.PopupRemarks(Player);
                 }
                 BossFight.Reset();
-                BossFight.ResizeArena(Player);
-                RefreshHPLossInFight = true;
+                BossFight.ResetArena(Player);
             }
         }
         public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit)
@@ -178,7 +182,7 @@ namespace CombatUtil.Common
         }
         public override void UpdateDead()
         {
-            InBossFight = IsInBossFight();
+            InBossFight = BossFight.Active;
             if (InBossFight)
             {
                 BossFight.UpdatePlayer(Player);
@@ -192,8 +196,7 @@ namespace CombatUtil.Common
                     BossFight.PopupRemarks(Player);
                 }
                 BossFight.Reset();
-                RefreshHPLossInFight = true;
-                BossFight.ResizeArena(Player);
+                BossFight.ResetArena(Player);
             }
         }
 
@@ -214,17 +217,6 @@ namespace CombatUtil.Common
             HPSample[0] = Player.statLife;
             HPLoss += Math.Max(HPSample[1] - HPSample[0], 0);
             HPLoss = Math.Max(HPLoss, 0);
-        }
-        private bool IsInBossFight()
-        {
-            foreach (NPC npc in Main.npc)
-            {
-                if (npc != null && npc.active && (Utils.CountAsBoss(npc) || npc.type == NPCID.EaterofWorldsTail))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

@@ -9,7 +9,7 @@ using Terraria.ModLoader.IO;
 
 namespace CombatUtil.Common
 {
-    public class CombatSystem : ModSystem
+    public class BossFightSystem : ModSystem
     {
         /*
          * 负责记录当前Boss战
@@ -47,10 +47,6 @@ namespace CombatUtil.Common
             }
         }
 
-        public override void PreUpdatePlayers()
-        {
-            base.PreUpdatePlayers();
-        }
         public override void PostUpdateEverything()
         {
             BossFight.Update();
