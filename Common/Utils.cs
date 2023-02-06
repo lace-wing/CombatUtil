@@ -39,6 +39,18 @@ namespace CombatUtil.Common
             }
             return lastCombatText;
         }
+        public static int DamageNumText(bool friendly = false)
+        {
+            if (FindLastDamageCombatText(friendly) != -1)
+            {
+                CombatText ct = Main.combatText[FindLastDamageCombatText()];
+                if (int.TryParse(ct.text, out int dmgDisplayed))
+                {
+                    return dmgDisplayed;
+                }
+            }
+            return -1;
+        }
         public static void PrintText(string key, object[] args = null, Color? color = null)
         {
             if (args == null)

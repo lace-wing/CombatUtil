@@ -176,22 +176,6 @@ namespace CombatUtil.Common
             }
             SampleHPAndUpdateLoss();
         }
-        public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
-        {
-            bool otherPlayer = false;
-            foreach (Player player in Main.player)
-            {
-                if (player.active && Player != player && !player.dead)
-                {
-                    otherPlayer = true;
-                    break;
-                }
-            }
-            if (!otherPlayer)
-            {
-                ClearHostiles();
-            }
-        }
         public override void UpdateDead()
         {
             InBossFight = IsInBossFight();
@@ -241,28 +225,6 @@ namespace CombatUtil.Common
                 }
             }
             return false;
-        }
-        private void ClearHostiles()
-        {
-
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                if (!Main.npc[i].friendly)
-                {
-                    Main.npc[i].active = false;
-                }
-            }
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                if (!Main.projectile[i].hostile)
-                {
-                    Main.projectile[i].Kill();
-                }
-            }
-            for (int i = 0; i < Main.maxItems; i++)
-            {
-                Main.item[i].active = false;
-            }
         }
     }
 }
