@@ -25,11 +25,12 @@ namespace CombatUtil.Common.FightSystem
         /// Key: player's filename, value: player's display name
         /// </summary>
         public Dictionary<string, string> PlayerNames;
-        public Dictionary<string, int> EnemyInfo;
+        public Dictionary<string, int> MEnemyInfo;
+        public Dictionary<int, int> VEnemyInfo;
 
-        public bool Valid => PlayerNames.Count > 0 && EnemyInfo.Count > 0;
+        public bool Valid => PlayerNames.Count > 0 && (VEnemyInfo.Count + MEnemyInfo.Count) > 0;
         public bool HasPlayer(string filename) => PlayerNames.Keys.Contains(filename);
-        public bool HasEnemy(string className, int count) => EnemyInfo.TryGetValue(className, out int c) && c == count;
+        public bool HasEnemy(int type, string className = default, int count = 1) => (VEnemyInfo.TryGetValue(type, out int c1) && c1 == count) || (MEnemyInfo.TryGetValue(className, out int c2) && c2 == count);
         /// <summary>
         /// Checks if the provided HashSet matches the record's player filenames
         /// </summary>
@@ -42,11 +43,12 @@ namespace CombatUtil.Common.FightSystem
         /// <summary>
         /// Checks if the provided Dictionary matches the record's enemy info
         /// </summary>
-        /// <param name="enemies"></param>
+        /// <param name="vEnemies"></param>
+        /// <param name="mEnemies"></param>
         /// <returns></returns>
-        public bool MatchEnemy(Dictionary<string, int> enemies)
+        public bool MatchEnemy(Dictionary<int, int> vEnemies, Dictionary<string, int> mEnemies)
         {
-            return enemies == EnemyInfo;
+            return vEnemies == VEnemyInfo && mEnemies == MEnemyInfo;
         }
     }
     public struct FightRecordBody
@@ -72,15 +74,16 @@ namespace CombatUtil.Common.FightSystem
         /// Get the first occurence of the matching FightRecordHead
         /// </summary>
         /// <param name="playerFilenames"></param>
-        /// <param name="enemyInfo"></param>
+        /// <param name="vEnemyInfo"></param>
+        /// <param name="mEnemyInfo"></param>
         /// <returns>Returns a matching FightRecordHead or an empty FightRecordHead if no matching case is found</returns>
-        public static FightRecordHead GetRecordHead(HashSet<string> playerFilenames, Dictionary<string, int> enemyInfo)
+        public static FightRecordHead GetRecordHead(HashSet<string> playerFilenames, Dictionary<int, int> vEnemyInfo, Dictionary<string, int> mEnemyInfo)
         {
             FightRecordHead head = new FightRecordHead();
             for (int i = 0; i < BFightRecord.Count; i++)
             {
                 head = BFightRecord.Keys.ToArray()[i];
-                if (head.MatchPlayer(playerFilenames) && head.MatchEnemy(enemyInfo))
+                if (head.MatchPlayer(playerFilenames) && head.MatchEnemy(vEnemyInfo, mEnemyInfo))
                 {
                     return head;
                 }
@@ -111,14 +114,19 @@ namespace CombatUtil.Common.FightSystem
         /// <summary>
         /// Get an enemy's count
         /// </summary>
+        /// <param name="head"></param>
+        /// <param name="type"></param>
         /// <param name="className">The enemy's class name</param>
-        /// <returns>Returns number of the enemy in the fight record or -1 if the enemy is not in the fight</returns>
-        public static int GetEnemyCount(FightRecordHead head, string className)
+        /// <returns>Number of the enemy in the fight record or -1 if the enemy is not in the fight</returns>
+        public static int GetEnemyCount(FightRecordHead head, int type = -1, string className = default)
         {
-            int i = head.EnemyInfo.Keys.ToList().IndexOf(className);
-            if (i != -1)
+            if (head.VEnemyInfo.TryGetValue(type, out int c1))
             {
-                return head.EnemyInfo.Values.ToArray()[i];
+                return c1;
+            }
+            if (head.MEnemyInfo.TryGetValue(className, out int c2))
+            {
+                return c2;
             }
             return -1;
         }
@@ -133,7 +141,7 @@ namespace CombatUtil.Common.FightSystem
         }
         public override void SaveWorldData(TagCompound tag)
         {
-            if (tag.ContainsKey("BFightRecord"))
+            if (!tag.ContainsKey("BFightRecord"))
             {
                 tag.Add("BFightRecord", BFightRecord);
             }
